@@ -1043,6 +1043,7 @@ local harpoon = require 'harpoon'
 harpoon:setup()
 -- REQUIRED
 
+--keybinding for harpoon
 vim.keymap.set('n', '<leader>a', function()
   harpoon:list():add()
 end, { desc = 'Add to harpoon' })
@@ -1070,6 +1071,12 @@ end)
 vim.keymap.set('n', 'nn', function()
   harpoon:list():next()
 end)
+
+harpoon:setup {
+  settings = {
+    save_on_toggle = true,
+  },
+}
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
