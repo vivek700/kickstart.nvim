@@ -629,6 +629,25 @@ require('lazy').setup({
             })
           end
 
+          -- Hyprlang LSP
+          vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWinEnter' }, {
+            pattern = { '*.hl', 'hypr*.conf' },
+            callback = function(event)
+              print(string.format('starting hyprls for %s', vim.inspect(event)))
+              vim.lsp.start {
+                name = 'hyprlang',
+                cmd = { 'hyprls' },
+                root_dir = vim.fn.getcwd(),
+                settings = {
+                  hyprls = {
+                    preferIgnoreFile = true, -- set to false to prefer `hyprls.ignore`
+                    ignore = { 'hyprlock.conf', 'hypridle.conf' },
+                  },
+                },
+              }
+            end,
+          })
+
           -- The following code creates a keymap to toggle inlay hints in your
           -- code, if the language server you are using supports them
           --
@@ -687,6 +706,7 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
+
         clangd = {},
         gopls = {},
         -- pyright = {},
@@ -697,8 +717,17 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        ts_ls = {},
+        ts_ls = {
+          root_dir = require('lspconfig').util.root_pattern { 'package.json', 'tsconfig.json' },
+          single_file_support = false,
+          settings = {},
+        },
         --
+        denols = {
+          root_dir = require('lspconfig').util.root_pattern { 'deno.json', 'deno.jsonc' },
+          single_file_support = false,
+          settings = {},
+        },
 
         lua_ls = {
           -- cmd = { ... },
@@ -917,7 +946,6 @@ require('lazy').setup({
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
       --vim.cmd.colorscheme 'tokyonight-night'
-      vim.cmd.colorscheme 'mellow'
     end,
   },
 
@@ -1077,6 +1105,14 @@ harpoon:setup {
     save_on_toggle = true,
   },
 }
+
+require('oil').setup {
+  view_options = {
+    show_hidden = true,
+  },
+}
+
+vim.cmd.colorscheme 'mellow'
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
