@@ -672,7 +672,7 @@ require('lazy').setup({
           single_file_support = false,
           settings = {},
         },
-        --
+
         denols = {
           root_dir = require('lspconfig').util.root_pattern { 'deno.json', 'deno.jsonc' },
           single_file_support = false,
@@ -702,12 +702,26 @@ require('lazy').setup({
       --    :Mason
       --
       -- You can press `g?` for help in this menu.
-      local ensure_installed = vim.tbl_keys(servers or {})
-      vim.list_extend(ensure_installed, {
-        'lua_ls', -- Lua Language server
+      -- local ensure_installed = vim.tbl_keys(servers or {})
+      -- vim.list_extend(ensure_installed, {
+      --   'lua-language-server', -- Lua Language server
+      --   'stylua', -- Used to format Lua code
+      --   'typescript-language-server',
+      --   'deno',
+      --   'clangd',
+      --   'gopls',
+      --   -- You can add other tools here that you want Mason to install
+      -- })
+      --
+      local ensure_installed = {
+        'lua-language-server', -- Lua Language server
         'stylua', -- Used to format Lua code
+        'typescript-language-server',
+        'deno',
+        'clangd',
+        'gopls',
         -- You can add other tools here that you want Mason to install
-      })
+      }
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -781,6 +795,10 @@ require('lazy').setup({
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         javascript = { 'prettierd', 'prettier', stop_after_first = true },
+        typescript = { 'prettierd', 'prettier', stop_after_first = true },
+        javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+        typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+        json = { 'prettierd' },
       },
     },
   },
@@ -947,11 +965,33 @@ require('lazy').setup({
 
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
+    branch = 'main',
+    lazy = false,
+    build = ':TSUpdate',
     config = function()
-      local filetypes = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
-      require('nvim-treesitter').install(filetypes)
+      local ts = require 'nvim-treesitter'
+      local langs = {
+        'bash',
+        'c',
+        'diff',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'vim',
+        'vimdoc',
+        'javascript',
+        'typescript',
+        'json',
+        'tsx',
+        'jsx',
+      }
+      ts.setup()
+      ts.install(langs)
       vim.api.nvim_create_autocmd('FileType', {
-        pattern = filetypes,
+        pattern = langs,
         callback = function() vim.treesitter.start() end,
       })
     end,
@@ -1014,33 +1054,17 @@ harpoon:setup()
 -- REQUIRED
 
 --keybinding for harpoon
-vim.keymap.set('n', '<leader>a', function()
-  harpoon:list():add()
-end, { desc = 'Add to harpoon' })
-vim.keymap.set('n', '<leader>e', function()
-  harpoon.ui:toggle_quick_menu(harpoon:list())
-end, { desc = 'Show harpoon list' })
+vim.keymap.set('n', '<leader>a', function() harpoon:list():add() end, { desc = 'Add to harpoon' })
+vim.keymap.set('n', '<leader>e', function() harpoon.ui:toggle_quick_menu(harpoon:list()) end, { desc = 'Show harpoon list' })
 
-vim.keymap.set('n', '<C-h>', function()
-  harpoon:list():select(1)
-end)
-vim.keymap.set('n', '<C-t>', function()
-  harpoon:list():select(2)
-end)
-vim.keymap.set('n', '<C-n>', function()
-  harpoon:list():select(3)
-end)
-vim.keymap.set('n', '<C-s>', function()
-  harpoon:list():select(4)
-end)
+vim.keymap.set('n', '<C-h>', function() harpoon:list():select(1) end)
+vim.keymap.set('n', '<C-t>', function() harpoon:list():select(2) end)
+vim.keymap.set('n', '<C-n>', function() harpoon:list():select(3) end)
+vim.keymap.set('n', '<C-s>', function() harpoon:list():select(4) end)
 
 -- Toggle previous & next buffers stored within Harpoon list
-vim.keymap.set('n', 'pp', function()
-  harpoon:list():prev()
-end)
-vim.keymap.set('n', 'nn', function()
-  harpoon:list():next()
-end)
+vim.keymap.set('n', 'pp', function() harpoon:list():prev() end)
+vim.keymap.set('n', 'nn', function() harpoon:list():next() end)
 
 harpoon:setup {
   settings = {
